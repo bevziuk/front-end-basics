@@ -14,12 +14,39 @@ fetch('static/data.json')
 function createLeftColumn(data) {
     //console.log(data[Object.keys(data)[0]]);
 
+    //if(!localStorage.getItem('elements')) {
+    //    for (let index in data) {
+    //        createElement('left', index, data[index]);
+    //    }
+    //    localStorage.setItem('elements', 'raka');
+    //}
+
     for (let index in data) {
-        createElement('left', data[index]);
+        createElement('left', index, data[index]);
     }
+
+    document.getElementsByClassName('left')[0].addEventListener("click", (event) => {
+        console.log(event)
+        let target = event.target;
+        if (target.classList.contains('after')) {
+            target.className = 'before';
+            let div = event.path[1];
+            document.getElementsByClassName('right')[0].appendChild(div);
+        }
+    });
+
+    document.getElementsByClassName('right')[0].addEventListener("click", (event) => {
+        console.log(event)
+        let target = event.target;
+        if (target.classList.contains('before')) {
+            target.className = 'after';
+            let div = event.path[1];
+            document.getElementsByClassName('left')[0].appendChild(div);
+        }
+    });
 }
 
-function createElement(position, object) {
+function createElement(position, index, object) {
     let div_item = document.createElement('div');
     div_item.className = "item";
 
@@ -52,6 +79,9 @@ function createElement(position, object) {
 
     let div_arrow = document.createElement('div');
     div_arrow.className = position === "left" ? "after" : "before";
+    //div_arrow.addEventListener("click", function(event) {
+    //    console.log(event);
+    //});
     div_item.appendChild(div_arrow);
 
     document.getElementsByClassName(position)[0].appendChild(div_item);
