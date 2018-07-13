@@ -12,41 +12,30 @@ fetch('static/data.json')
     });
 
 function createLeftColumn(data) {
-    //console.log(data[Object.keys(data)[0]]);
+    if(!localStorage.getItem('elements')) {
+        let elements = {};
+        elements.left = [];
+        elements.right = [];
 
-    //if(!localStorage.getItem('elements')) {
-    //    for (let index in data) {
-    //        createElement('left', index, data[index]);
-    //    }
-    //    localStorage.setItem('elements', 'raka');
-    //}
-
-    for (let index in data) {
-        createElement('left', index, data[index]);
+        for (let key in data) {
+            createElement('left', key, data[key]);
+            elements.left.push(key);
+        }
+        localStorage.setItem('elements', JSON.stringify(elements));
     }
+    else {
+        let elements = JSON.parse(localStorage.getItem('elements'));
+        elements.left.forEach(elem => {
+            createElement('left', elem, data[elem]);
+        });
 
-    document.getElementsByClassName('left')[0].addEventListener("click", (event) => {
-        console.log(event)
-        let target = event.target;
-        if (target.classList.contains('after')) {
-            target.className = 'before';
-            let div = event.path[1];
-            document.getElementsByClassName('right')[0].appendChild(div);
-        }
-    });
-
-    document.getElementsByClassName('right')[0].addEventListener("click", (event) => {
-        console.log(event)
-        let target = event.target;
-        if (target.classList.contains('before')) {
-            target.className = 'after';
-            let div = event.path[1];
-            document.getElementsByClassName('left')[0].appendChild(div);
-        }
-    });
+        elements.right.forEach(elem => {
+            createElement('right', elem, data[elem]);
+        });
+    }
 }
 
-function createElement(position, index, object) {
+function createElement(position, id, object) {
     let div_item = document.createElement('div');
     div_item.className = "item";
 
@@ -79,10 +68,50 @@ function createElement(position, index, object) {
 
     let div_arrow = document.createElement('div');
     div_arrow.className = position === "left" ? "after" : "before";
-    //div_arrow.addEventListener("click", function(event) {
-    //    console.log(event);
-    //});
+    div_arrow.id = id;
+    position === "left" ? div_arrow.addEventListener("click", moveLeftCallback) :
+        div_arrow.addEventListener("click", moveRightCallback);
     div_item.appendChild(div_arrow);
 
     document.getElementsByClassName(position)[0].appendChild(div_item);
+}
+
+function moveLeftCallback(event) {
+    let target = event.target;
+    if (target.classList.contains('after')) {
+        target.className = 'before';
+        target.removeEventListener("click", moveLeftCallback);
+        target.addEventListener("click", moveRightCallback);
+
+        let div = event.path[1];
+        document.getElementsByClassName('right')[0].appendChild(div);
+
+        let elements = JSON.parse(localStorage.getItem('elements'));
+        let index = elements.left.indexOf(target.id);
+
+        elements.right.push(elements.left[index]);
+        elements.left.splice(index, 1);
+
+        localStorage.setItem('elements', JSON.stringify(elements));
+    }
+}
+
+function moveRightCallback(event) {
+    let target = event.target;
+    if (target.classList.contains('before')) {
+        target.className = 'after';
+        target.removeEventListener("click", moveRightCallback);
+        target.addEventListener("click", moveLeftCallback);
+
+        let div = event.path[1];
+        document.getElementsByClassName('left')[0].appendChild(div);
+
+        let elements = JSON.parse(localStorage.getItem('elements'));
+        let index = elements.right.indexOf(target.id);
+
+        elements.left.push(elements.right[index]);
+        elements.right.splice(index, 1);
+
+        localStorage.setItem('elements', JSON.stringify(elements));
+    }
 }
