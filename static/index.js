@@ -34,25 +34,38 @@ function fillContent(data) {
         });
     }
 
+    let elements = JSON.parse(localStorage.getItem('elements'));
+    document.getElementsByClassName('amount-info')[0].innerHTML = elements.left.length;
+    document.getElementsByClassName('amount-info')[1].innerHTML = elements.right.length;
+
     let input = document.getElementsByTagName('input')[0];
     input.oninput = () => {
         document.getElementsByClassName('left')[0].innerHTML = "";
         document.getElementsByClassName('right')[0].innerHTML = "";
+
+        let amount = 0;
 
         let elements = JSON.parse(localStorage.getItem('elements'));
         elements.left.forEach(elem => {
             if(~data[elem]['author'].indexOf(input.value)) {
                 console.log(input.value);
                 createElement('left', elem, data[elem]);
+                amount++;
             }
         });
+        document.getElementsByClassName('amount-info')[0].innerHTML = amount;
+
+        amount = 0;
 
         elements.right.forEach(elem => {
             if(~data[elem]['author'].indexOf(input.value)) {
                 console.log(input.value);
                 createElement('right', elem, data[elem]);
+                amount++;
             }
         });
+
+        document.getElementsByClassName('amount-info')[1].innerHTML = amount;
     };
 }
 
@@ -113,6 +126,9 @@ function moveLeftCallback(event) {
         elements.right.push(elements.left[index]);
         elements.left.splice(index, 1);
 
+        document.getElementsByClassName('amount-info')[0].innerHTML = elements.left.length;
+        document.getElementsByClassName('amount-info')[1].innerHTML = elements.right.length;
+
         localStorage.setItem('elements', JSON.stringify(elements));
     }
 }
@@ -132,6 +148,9 @@ function moveRightCallback(event) {
 
         elements.left.push(elements.right[index]);
         elements.right.splice(index, 1);
+
+        document.getElementsByClassName('amount-info')[0].innerHTML = elements.left.length;
+        document.getElementsByClassName('amount-info')[1].innerHTML = elements.right.length;
 
         localStorage.setItem('elements', JSON.stringify(elements));
     }

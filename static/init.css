@@ -18,12 +18,22 @@ div {
 	flex-wrap: wrap;
 }
 
+.amount {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.amount-info {
+	border: 2px solid black;
+	min-width: 450px;
+	text-align: center;
+}
+
 .left {
 	overflow-y: auto;
 	border: 2px solid green;
 	max-height: 600px;
 	min-width: 450px;
-
 }
 
 .right {
