@@ -5,13 +5,13 @@ fetch('static/data.json')
         return response.json();
     })
     .then(function(json) {
-        createLeftColumn(json);
+        fillContent(json);
     })
     .catch(function(err) {
         console.log('Error', err);
     });
 
-function createLeftColumn(data) {
+function fillContent(data) {
     if(!localStorage.getItem('elements')) {
         let elements = {};
         elements.left = [];
@@ -33,6 +33,27 @@ function createLeftColumn(data) {
             createElement('right', elem, data[elem]);
         });
     }
+
+    let input = document.getElementsByTagName('input')[0];
+    input.oninput = () => {
+        document.getElementsByClassName('left')[0].innerHTML = "";
+        document.getElementsByClassName('right')[0].innerHTML = "";
+
+        let elements = JSON.parse(localStorage.getItem('elements'));
+        elements.left.forEach(elem => {
+            if(~data[elem]['author'].indexOf(input.value)) {
+                console.log(input.value);
+                createElement('left', elem, data[elem]);
+            }
+        });
+
+        elements.right.forEach(elem => {
+            if(~data[elem]['author'].indexOf(input.value)) {
+                console.log(input.value);
+                createElement('right', elem, data[elem]);
+            }
+        });
+    };
 }
 
 function createElement(position, id, object) {
