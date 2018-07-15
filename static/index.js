@@ -134,7 +134,8 @@ function addLeftListener() {
         let target = event.target;
         if (target.classList.contains('after')) {
             target.className = 'before';
-            let div = event.path[1];
+            //let div = event.path[1];
+            let div = target.parentNode;
             getElement('.right')[0].appendChild(div);
 
             let elements = JSON.parse(localStorage.getItem('elements'));
@@ -157,7 +158,8 @@ function addRightListener() {
         let target = event.target;
         if (target.classList.contains('before')) {
             target.className = 'after';
-            let div = event.path[1];
+            //let div = event.path[1];
+            let div = target.parentNode;
             getElement('.left')[0].appendChild(div);
 
             let elements = JSON.parse(localStorage.getItem('elements'));
