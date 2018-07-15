@@ -13,24 +13,28 @@ fetch('static/data.json')
 
 function fillContent(data) {
     if(!localStorage.getItem('elements')) {
-        let elements = {};
-        elements.left = [];
-        elements.right = [];
+        let elements = {
+            left: [],
+            right: []
+        };
 
         for (let key in data) {
-            createElement('left', key, data[key]);
+            let parent = getElement('.left')[0];
+            createItem(parent, 'left', key, data[key]);
             elements.left.push(key);
         }
         localStorage.setItem('elements', JSON.stringify(elements));
     }
     else {
         let elements = JSON.parse(localStorage.getItem('elements'));
+        let parent = getElement('.left')[0];
         elements.left.forEach(elem => {
-            createElement('left', elem, data[elem]);
+            createItem(parent, 'left', elem, data[elem]);
         });
 
+        parent = getElement('.right')[0];
         elements.right.forEach(elem => {
-            createElement('right', elem, data[elem]);
+            createItem(parent, 'right', elem, data[elem]);
         });
     }
 
@@ -39,48 +43,10 @@ function fillContent(data) {
     amount_info[0].innerHTML = elements.left.length;
     amount_info[1].innerHTML = elements.right.length;
 
-    getElement('.left')[0].addEventListener("click", (event) => {
-        let target = event.target;
-        if (target.classList.contains('after')) {
-            target.className = 'before';
-            let div = event.path[1];
-            getElement('.right')[0].appendChild(div);
+    addLeftListener();
+    addRightListener();
 
-            let elements = JSON.parse(localStorage.getItem('elements'));
-            let index = elements.left.indexOf(target.id);
-
-            elements.right.push(elements.left[index]);
-            elements.left.splice(index, 1);
-
-            let amount_info = getElement('.amount-info');
-            amount_info[0].innerHTML = elements.left.length;
-            amount_info[1].innerHTML = elements.right.length;
-
-            localStorage.setItem('elements', JSON.stringify(elements));
-        }
-    });
-
-    getElement('.right')[0].addEventListener("click", (event) => {
-         let target = event.target;
-         if (target.classList.contains('before')) {
-             target.className = 'after';
-             let div = event.path[1];
-             getElement('.left')[0].appendChild(div);
-
-             let elements = JSON.parse(localStorage.getItem('elements'));
-             let index = elements.right.indexOf(target.id);
-
-             elements.left.push(elements.right[index]);
-             elements.right.splice(index, 1);
-
-             let amount_info = getElement('.amount-info');
-             amount_info[0].innerHTML = elements.left.length;
-             amount_info[1].innerHTML = elements.right.length;
-
-             localStorage.setItem('elements', JSON.stringify(elements));
-         }
-    });
-
+    // Search
     let input = document.getElementsByTagName('input')[0];
     input.oninput = () => {
         getElement('.left')[0].innerHTML = "";
@@ -89,10 +55,13 @@ function fillContent(data) {
         let amount = 0;
 
         let elements = JSON.parse(localStorage.getItem('elements'));
+        let parent = getElement('.left')[0];
+
         elements.left.forEach(elem => {
-            if(~data[elem]['author'].indexOf(input.value)) {
-                console.log(input.value);
-                createElement('left', elem, data[elem]);
+            let author = data[elem]['author'].toLowerCase()
+            let value = input.value.toLowerCase();
+            if(author.includes(value)) {
+                createItem(parent, 'left', elem, data[elem]);
                 amount++;
             }
         });
@@ -101,11 +70,13 @@ function fillContent(data) {
         amount_info[0].innerHTML = amount;
 
         amount = 0;
+        parent = getElement('.right')[0];
 
         elements.right.forEach(elem => {
-            if(~data[elem]['author'].indexOf(input.value)) {
-                console.log(input.value);
-                createElement('right', elem, data[elem]);
+            let author = data[elem]['author'].toLowerCase()
+            let value = input.value.toLowerCase();
+            if(author.includes(value)) {
+                createItem(parent, 'right', elem, data[elem]);
                 amount++;
             }
         });
@@ -114,7 +85,7 @@ function fillContent(data) {
     };
 }
 
-function createElement(position, id, object) {
+function createItem(parent, side, id, object) {
     let div_item = document.createElement('div');
     div_item.className = "item";
 
@@ -146,13 +117,60 @@ function createElement(position, id, object) {
     // !INFO
 
     let div_arrow = document.createElement('div');
-    div_arrow.className = position === "left" ? "after" : "before";
+    div_arrow.className = side === "left" ? "after" : "before";
     div_arrow.id = id;
     div_item.appendChild(div_arrow);
 
-    document.getElementsByClassName(position)[0].appendChild(div_item);
+    parent.appendChild(div_item);
+    //document.getElementsByClassName(side)[0].appendChild(div_item);
 }
 
 function getElement(selector) {
     return document.querySelectorAll(selector);
+}
+
+function addLeftListener() {
+    getElement('.left')[0].addEventListener("click", (event) => {
+        let target = event.target;
+        if (target.classList.contains('after')) {
+            target.className = 'before';
+            let div = event.path[1];
+            getElement('.right')[0].appendChild(div);
+
+            let elements = JSON.parse(localStorage.getItem('elements'));
+            let index = elements.left.indexOf(target.id);
+
+            elements.right.push(elements.left[index]);
+            elements.left.splice(index, 1);
+
+            let amount_info = getElement('.amount-info');
+            amount_info[0].innerHTML = elements.left.length;
+            amount_info[1].innerHTML = elements.right.length;
+
+            localStorage.setItem('elements', JSON.stringify(elements));
+        }
+    });
+}
+
+function addRightListener() {
+    getElement('.right')[0].addEventListener("click", (event) => {
+        let target = event.target;
+        if (target.classList.contains('before')) {
+            target.className = 'after';
+            let div = event.path[1];
+            getElement('.left')[0].appendChild(div);
+
+            let elements = JSON.parse(localStorage.getItem('elements'));
+            let index = elements.right.indexOf(target.id);
+
+            elements.left.push(elements.right[index]);
+            elements.right.splice(index, 1);
+
+            let amount_info = getElement('.amount-info');
+            amount_info[0].innerHTML = elements.left.length;
+            amount_info[1].innerHTML = elements.right.length;
+
+            localStorage.setItem('elements', JSON.stringify(elements));
+        }
+    });
 }
