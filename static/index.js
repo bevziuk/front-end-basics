@@ -58,7 +58,7 @@ function fillContent(data) {
         let parent = getElement('.left')[0];
 
         elements.left.forEach(elem => {
-            let author = data[elem]['author'].toLowerCase()
+            let author = data[elem]['author'].toLowerCase();
             let value = input.value.toLowerCase();
             if(author.includes(value)) {
                 createItem(parent, 'left', elem, data[elem]);
@@ -73,7 +73,7 @@ function fillContent(data) {
         parent = getElement('.right')[0];
 
         elements.right.forEach(elem => {
-            let author = data[elem]['author'].toLowerCase()
+            let author = data[elem]['author'].toLowerCase();
             let value = input.value.toLowerCase();
             if(author.includes(value)) {
                 createItem(parent, 'right', elem, data[elem]);
